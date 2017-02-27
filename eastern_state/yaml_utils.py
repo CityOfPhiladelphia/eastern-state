@@ -31,7 +31,7 @@ class EncryptedTag(object):
         return EncryptedTag(loader.construct_scalar(node))
 
     def representer(dumper, data):
-        return dumper.represent_scalar(EncryptedTag.yaml_tag, data.value, style='')
+        return dumper.represent_scalar(EncryptedTag.yaml_tag, data.value)
 
 class Loader(yaml.Loader):
     def __init__(self, *args, **kwargs):
