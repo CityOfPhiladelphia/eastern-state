@@ -1,5 +1,5 @@
 name: my_app
-bucket: foo
+bucket: eastern-state-test
 environments:
   dev:
     kms_key: arn:aws:kms:us-east-1:676612114792:alias/eastern-state-test
@@ -19,5 +19,5 @@ environments:
       DB_HOST: db.example.com
       DB_PORT: 5432
       DB_USERNAME: app
-      DB_PASSWORD: !encrypted 'AQECAHg3g5RAK7cK6ndk2rnrMtMUrKQcunaArBJHSjQUBlsKwgAAAG4wbAYJKoZIhvcNAQcGoF8wXQIBADBYBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDGlM41PwliESoYas6AIBEIAr85IerjmrxSaGZm8TYPH8VjnDLFlFG6SzR6wSaKEF68uqGEWD364lSmAjtg=='
+      DB_PASSWORD: !unencrypted KT46?Ju?7#u?gTeY
       DB_DATABASE: my_app

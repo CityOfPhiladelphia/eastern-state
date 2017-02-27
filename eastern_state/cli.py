@@ -1,5 +1,6 @@
 import yaml
 import click
+import boto3
 
 from .yaml_utils import Loader, Dumper
 from .encryption import encrypt_file, decrypt_file
@@ -43,7 +44,14 @@ def decrypt(filename, save):
         output(file, env_file, save)
 
 @main.command(help='Uploads environment files to S3')
-@click.option('-f','--file', default='env.yml', help='Environments YAML file path')
-def upload():
-    ## TODO: upload into files <bucket>/<name>/<env>
-    pass
+@click.option('-f','--filename', default='env.yml', help='Environments YAML file path')
+def upload(filename):
+    with open(filename) as file:
+        env_file = yaml.load(file, Loader)
+
+        client = boto3.client('s3')
+
+        client.put_object(
+            Bucket=env_file['bucket'],
+            Key=env_file['name'],
+            Body=file.read().encode('utf-8'))
