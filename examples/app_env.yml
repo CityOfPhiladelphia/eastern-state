@@ -1,19 +1,23 @@
 name: my_app
 bucket: foo
-env:
+environments:
   dev:
-    FLASK_HTTP_PORT: 8080
-    FLASK_HOST: localhost
-    DB_HOST: localhost
-    DB_PORT: 5432
-    DB_USERNAME: app
-    DB_PASSWORD: password
-    DB_DATABASE: my_app
+    kms_key: arn:aws:kms:us-east-1:676612114792:alias/eastern-state-test
+    variables:
+      FLASK_HTTP_PORT: 8080
+      FLASK_HOST: localhost
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: app
+      DB_PASSWORD: password
+      DB_DATABASE: my_app
   prod:
-    FLASK_HTTP_PORT: 80
-    FLASK_HOST: app.example.com
-    DB_HOST: db.example.com
-    DB_PORT: 5432
-    DB_USERNAME: app
-    DB_PASSWORD: !unencrypted mmdzYSztCJ=a9usm
-    DB_DATABASE: my_app
+    kms_key: arn:aws:kms:us-east-1:676612114792:alias/eastern-state-test
+    variables:
+      FLASK_HTTP_PORT: 80
+      FLASK_HOST: app.example.com
+      DB_HOST: db.example.com
+      DB_PORT: 5432
+      DB_USERNAME: app
+      DB_PASSWORD: !unencrypted mmdzYSztCJ=a9usm
+      DB_DATABASE: my_app

@@ -15,6 +15,9 @@ class UnencryptedTag(object):
     def constructor(loader, node):
         return UnencryptedTag(loader.construct_scalar(node))
 
+    def representer(dumper, data):
+        return dumper.represent_scalar(UnencryptedTag.yaml_tag, data.value)
+
 class EncryptedTag(object):
     yaml_tag = u'!encrypted'
 
@@ -26,6 +29,9 @@ class EncryptedTag(object):
 
     def constructor(loader, node):
         return EncryptedTag(loader.construct_scalar(node))
+
+    def representer(dumper, data):
+        return dumper.represent_scalar(EncryptedTag.yaml_tag, data.value, style='')
 
 class Loader(yaml.Loader):
     def __init__(self, *args, **kwargs):
@@ -68,6 +74,10 @@ class Dumper(yaml.Dumper):
         yaml.Dumper.__init__(self, *args, **kwargs)
 
         self.add_representer(OrderedDict, Dumper.represent_ordereddict)
+
+        # custom
+        self.add_representer(UnencryptedTag, UnencryptedTag.representer)
+        self.add_representer(EncryptedTag, EncryptedTag.representer)
 
     def represent_ordereddict(self, data):
         value = []
