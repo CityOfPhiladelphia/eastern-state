@@ -51,7 +51,23 @@ def upload(filename):
 
         client = boto3.client('s3')
 
+        file.seek(0)
+
         client.put_object(
             Bucket=env_file['bucket'],
             Key=env_file['name'],
             Body=file.read().encode('utf-8'))
+
+@main.command(help='Uploads environment files to S3')
+@click.argument('bucket')
+@click.argument('name')
+@click.option('-f','--filename', default='env.yml', help='Path to save environments YAML')
+def download(bucket, name, filename):
+    client = boto3.client('s3')
+
+    response = client.get_object(
+        Bucket=bucket,
+        Key=name)
+
+    with open(filename, 'w+') as file:
+        file.write(response['Body'].read().decode('utf-8'))
