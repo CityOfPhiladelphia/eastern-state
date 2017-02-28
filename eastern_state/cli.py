@@ -1,3 +1,5 @@
+import sys
+
 import yaml
 import click
 import boto3
@@ -11,52 +13,62 @@ from .encryption import encrypt_file, decrypt_file
 def main():
     pass
 
-def output(file, env_file, save):
+@main.command(help='Encrypts values tagged `!encrypt` and overwrites the file.')
+@click.option('-f','--filename', help='Environments YAML file path')
+def encrypt(filename):
+    if filename != None:
+        file = open(filename, 'r+')
+    else:
+        file = sys.stdin
+
+    env_file = yaml.load(file, Loader)
+
+    encrypt_file(env_file)
+
     output = yaml.dump(env_file, Dumper=Dumper)
 
-    click.echo(output)
-
-    if save:
-        file.seek(0)
-        file.truncate()
-        file.write(output)
-
-@main.command(help='Encrypts values tagged `!encrypt` and overwrites the file.')
-@click.option('-f','--filename', default='env.yml', help='Environments YAML file path')
-@click.option('--save', is_flag=True, default=False, help='Save, overwriting existing file')
-def encrypt(filename, save):
-    with open(filename, 'r+') as file:
-        env_file = yaml.load(file, Loader)
-
-        encrypt_file(env_file)
-
-        output(file, env_file, save)
+    sys.stdout.write(output)
 
 @main.command(help='Decrypts values tagged `!encrypted` and overwrites the file.')
 @click.option('-f','--filename', default='env.yml', help='Environments YAML file path')
-@click.option('--save', is_flag=True, default=False, help='Save, overwriting existing file')
-def decrypt(filename, save):
-   with open(filename, 'r+') as file:
-        env_file = yaml.load(file, Loader)
+def decrypt(filename):
+    if filename != None:
+        file = open(filename)
+    else:
+        file = sys.stdin
 
-        decrypt_file(env_file)
+    env_file = yaml.load(file, Loader)
 
-        output(file, env_file, save)
+    if filename != None:
+        file.close()
+
+    decrypt_file(env_file)
+
+    output = yaml.dump(env_file, Dumper=Dumper)
+
+    sys.stdout.write(output)
 
 @main.command(help='Uploads environment files to S3')
 @click.option('-f','--filename', default='env.yml', help='Environments YAML file path')
 def upload(filename):
-    with open(filename) as file:
-        env_file = yaml.load(file, Loader)
+    if filename != None:
+        file = open(filename)
+    else:
+        file = sys.stdin
 
-        client = boto3.client('s3')
+    env_file = yaml.load(file, Loader)
 
-        file.seek(0)
+    if filename != None:
+        file.close()
 
-        client.put_object(
-            Bucket=env_file['bucket'],
-            Key=env_file['name'],
-            Body=file.read().encode('utf-8'))
+    client = boto3.client('s3')
+
+    file.seek(0)
+
+    client.put_object(
+        Bucket=env_file['bucket'],
+        Key=env_file['name'],
+        Body=file.read().encode('utf-8'))
 
 @main.command(help='Uploads environment files to S3')
 @click.argument('bucket')
@@ -69,5 +81,10 @@ def download(bucket, name, filename):
         Bucket=bucket,
         Key=name)
 
-    with open(filename, 'w+') as file:
-        file.write(response['Body'].read().decode('utf-8'))
+    output = response['Body'].read().decode('utf-8')
+
+    if filename != None:
+        with open(filename, 'w+') as file:
+            file.write(output)
+    else:
+        sys.stdout.write(output)
