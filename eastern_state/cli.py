@@ -17,11 +17,14 @@ def main():
 @click.option('-f','--filename', help='Environments YAML file path')
 def encrypt(filename):
     if filename != None:
-        file = open(filename, 'r+')
+        file = open(filename)
     else:
         file = sys.stdin
 
     env_file = yaml.load(file, Loader)
+
+    if filename != None:
+        file.close()
 
     encrypt_file(env_file)
 
