@@ -8,6 +8,7 @@ from .yaml_utils import Loader, Dumper, UnencryptedTag, EncryptedTag
 from .encryption import encrypt_file, decrypt_file
 
 ## TODO: create git hooks to prevent unencrypted creds from being committed
+## TODO: prevent upload when !unencrypted values exist
 
 @click.group()
 def main():
