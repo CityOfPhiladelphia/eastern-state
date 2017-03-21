@@ -35,7 +35,7 @@ def encrypt(filename):
 
 @main.command(help='Decrypts values tagged `!encrypted` and overwrites the file.')
 @click.option('-f','--filename', help='Environments YAML file path')
-@click.option('-env', help='Environment to decrypt')
+@click.option('--env', help='Environment to decrypt')
 def decrypt(filename, env):
     if filename != None:
         file = open(filename)

@@ -40,7 +40,7 @@ def decrypt_value(client, config, value):
 
     return UnencryptedTag(response['Plaintext'].decode('utf-8'))
 
-def decrypt_env(env_file, env):
+def decrypt_env(client, env_file, env):
     config = {
         'EncryptionContext': {
             'name': env_file['name'],
@@ -57,8 +57,8 @@ def decrypt_file(env_file, env=None):
     client = boto3.client('kms')
 
     if env != None:
-        decrypt_env(env_file, env)
+        decrypt_env(client, env_file, env)
     else:
         for env in env_file['environments']:
-            decrypt_env(env_file, env)
+            decrypt_env(client, env_file, env)
         
