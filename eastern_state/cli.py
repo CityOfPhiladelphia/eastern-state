@@ -35,7 +35,8 @@ def encrypt(filename):
 
 @main.command(help='Decrypts values tagged `!encrypted` and overwrites the file.')
 @click.option('-f','--filename', help='Environments YAML file path')
-def decrypt(filename):
+@click.option('-env', help='Environment to decrypt')
+def decrypt(filename, env):
     if filename != None:
         file = open(filename)
     else:
@@ -46,7 +47,7 @@ def decrypt(filename):
     if filename != None:
         file.close()
 
-    decrypt_file(env_file)
+    decrypt_file(env_file, env)
 
     output = yaml.dump(env_file, Dumper=Dumper)
 
@@ -72,7 +73,7 @@ def upload(filename):
         Body=raw_file)
 
     if filename != None:
-        raw_file.close()
+        file.close()
 
 @main.command(help='Downloads environment config file from S3')
 @click.argument('bucket')

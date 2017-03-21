@@ -40,18 +40,25 @@ def decrypt_value(client, config, value):
 
     return UnencryptedTag(response['Plaintext'].decode('utf-8'))
 
-def decrypt_file(env_file):
+def decrypt_env(env_file, env):
+    config = {
+        'EncryptionContext': {
+            'name': env_file['name'],
+            'env': env
+        }
+    }
+
+    for variable in env_file['environments'][env]['variables']:
+        value = env_file['environments'][env]['variables'][variable]
+        if isinstance(value, EncryptedTag):
+            env_file['environments'][env]['variables'][variable] = decrypt_value(client, config, value)
+
+def decrypt_file(env_file, env=None):
     client = boto3.client('kms')
 
-    for env in env_file['environments']:
-        config = {
-            'EncryptionContext': {
-                'name': env_file['name'],
-                'env': env
-            }
-        }
-
-        for variable in env_file['environments'][env]['variables']:
-            value = env_file['environments'][env]['variables'][variable]
-            if isinstance(value, EncryptedTag):
-                env_file['environments'][env]['variables'][variable] = decrypt_value(client, config, value)
+    if env != None:
+        decrypt_env(env_file, env)
+    else:
+        for env in env_file['environments']:
+            decrypt_env(env_file, env)
+        
