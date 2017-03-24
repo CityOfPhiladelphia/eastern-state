@@ -94,6 +94,20 @@ def download(bucket, name, filename):
     else:
         sys.stdout.write(output)
 
+def output_exports(env_file, env):
+    variables = env_file['environments'][env]['variables']
+
+    def get_value(value):
+        if isinstance(value, UnencryptedTag) or isinstance(value, EncryptedTag):
+            return value.value
+        return value
+
+    output = ''
+    for var in variables:
+        output += 'export {}={}\n'.format(var, get_value(variables[var]))
+
+    sys.stdout.write(output)
+
 @main.command(help='Outputs bash environment exports')
 @click.argument('env')
 @click.option('-f','--filename', help='Environments YAML file path')
@@ -108,15 +122,23 @@ def exports(env, filename):
     if filename != None:
         file.close()
 
-    variables = env_file['environments'][env]['variables']
+    output_exports(env_file, env)
 
-    def get_value(value):
-        if isinstance(value, UnencryptedTag) or isinstance(value, EncryptedTag):
-            return value.value
-        return value
+@main.command(help='Loads a config from S3, decrypts and loads the environment')
+@click.argument('bucket')
+@click.argument('name')
+@click.argument('env')
+def load_environment(bucket, name, env):
+    client = boto3.client('s3')
 
-    output = ''
-    for var in variables:
-        output += 'export {}={}\n'.format(var, get_value(variables[var]))
+    response = client.get_object(
+        Bucket=bucket,
+        Key=name)
 
-    sys.stdout.write(output)
+    output = response['Body'].read().decode('utf-8')
+
+    env_file = yaml.load(output, Loader)
+
+    decrypt_file(env_file, env)
+
+    output_exports(env_file, env)
